@@ -27,6 +27,7 @@ async function run() {
 
     const usersCollection = client.db("bdaeDb").collection("users");
     const visitorUsersCollection = client.db("bdaeDb").collection("visitorUsers");
+    const exhibitorUsersCollection = client.db("bdaeDb").collection("exhibitorUsers");
     const subscribesCollection = client.db("bdaeDb").collection("subscribes");
     // USER GET request handler
     app.get("/users", async (req, res) => {
@@ -48,14 +49,27 @@ async function run() {
 
     // Visitor Users GET request handler
     app.get("/visitorUsers", async (req, res) => {
-      const result = await visitorUsers.find().toArray();
+      const result = await visitorUsersCollection.find().toArray();
       res.send(result);
     });
 
     // Visitor Users POST request handler
     app.post("/visitorUsers", async (req, res) => {
       const visitorUser = req.body;
-      const result = await visitorUsers.insertOne(visitorUser);
+      const result = await visitorUsersCollection.insertOne(visitorUser);
+      res.send(result);
+    });
+
+    // Visitor Users GET request handler
+    app.get("/exhibitorUsers", async (req, res) => {
+      const result = await exhibitorUsersCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Visitor Users POST request handler
+    app.post("/exhibitorUsers", async (req, res) => {
+      const visitorUser = req.body;
+      const result = await exhibitorUsersCollection.insertOne(visitorUser);
       res.send(result);
     });
 
