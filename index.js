@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("bdaeDb").collection("users");
+    const visitorUsersCollection = client.db("bdaeDb").collection("visitorUsers");
     const subscribesCollection = client.db("bdaeDb").collection("subscribes");
     // USER GET request handler
     app.get("/users", async (req, res) => {
@@ -44,6 +45,13 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+
+    // Visitor Users GET request handler
+    app.get("/visitorUsers", async (req, res) => {
+      const result = await visitorUsers.find().toArray();
+      res.send(result);
+    });
+    
 
     // Subscribes GET request handler
     app.get("/subscribes", async (req, res) => {
