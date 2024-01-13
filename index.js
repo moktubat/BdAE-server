@@ -51,7 +51,13 @@ async function run() {
       const result = await visitorUsers.find().toArray();
       res.send(result);
     });
-    
+
+    // Visitor Users POST request handler
+    app.post("/visitorUsers", async (req, res) => {
+      const visitorUser = req.body;
+      const result = await visitorUsers.insertOne(visitorUser);
+      res.send(result);
+    });
 
     // Subscribes GET request handler
     app.get("/subscribes", async (req, res) => {
