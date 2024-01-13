@@ -26,7 +26,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("bdaeDb").collection("users");
-
+    const subscribesCollection = client.db("bdaeDb").collection("subscribes");
     // USER GET request handler
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
@@ -44,6 +44,14 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+
+    // Subscribes GET request handler
+    app.get("/subscribes", async (req, res) => {
+      const result = await subscribesCollection.find().toArray();
+      res.send(result);
+    });
+
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
