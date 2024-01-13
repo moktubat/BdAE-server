@@ -50,8 +50,13 @@ async function run() {
       const result = await subscribesCollection.find().toArray();
       res.send(result);
     });
-
     
+    // Subscribes POST request handler
+    app.post("/subscribes", async (req, res) => {
+        const newsletter = req.body;
+        const result = await subscribesCollection.insertOne(newsletter);
+        res.send(result);
+      });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
