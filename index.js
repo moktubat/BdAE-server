@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const cors = require("cors");
+const nodeMailer = require("./nodeMailer");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
@@ -57,7 +58,18 @@ async function run() {
     app.post("/visitorUsers", async (req, res) => {
       const visitorUser = req.body;
       const result = await visitorUsersCollection.insertOne(visitorUser);
-      res.send(result);
+    
+      try {
+        await nodeMailer.sendWelcomeEmail(
+          visitorUser.visitorEmail,
+          visitorUser.visitorTitle,
+          visitorUser.visitorLastName
+        );
+        res.send(result);
+      } catch (error) {
+        console.error("Error sending email:", error);
+        res.status(500).send("Error sending email");
+      }
     });
 
     // Visitor Users GET request handler
