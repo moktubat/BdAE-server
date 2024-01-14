@@ -34,22 +34,33 @@ async function run() {
       .db("bdaeDb")
       .collection("exhibitorUsers");
     const subscribesCollection = client.db("bdaeDb").collection("subscribes");
+
     // USER GET request handler
     app.get("/users", async (req, res) => {
-      const result = await usersCollection.find().toArray();
-      res.send(result);
-    });
+      try {
+        const visitorUsers = await visitorUsersCollection.find().toArray();
+        const exhibitorUsers = await exhibitorUsersCollection.find().toArray();
 
-    // USER POST request handler
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const query = { email: user.email };
-      const existingUser = await usersCollection.findOne(query);
-      if (existingUser) {
-        return res.send({ message: "User already exists" });
+        const users = [
+          ...visitorUsers.map((user) => ({
+            _id: user._id,
+            name: `${user.visitorFirstName} ${user.visitorLastName}`,
+            email: user.visitorEmail,
+            category: "visitor",
+          })),
+          ...exhibitorUsers.map((user) => ({
+            _id: user._id,
+            name: `${user.exhibitorFirstName} ${user.exhibitorLastName}`,
+            email: user.exhibitorEmail,
+            category: "exhibitor",
+          })),
+        ];
+
+        res.send(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).send("Error fetching users");
       }
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
     });
 
     // Visitor Users GET request handler
