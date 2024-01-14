@@ -27,8 +27,12 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("bdaeDb").collection("users");
-    const visitorUsersCollection = client.db("bdaeDb").collection("visitorUsers");
-    const exhibitorUsersCollection = client.db("bdaeDb").collection("exhibitorUsers");
+    const visitorUsersCollection = client
+      .db("bdaeDb")
+      .collection("visitorUsers");
+    const exhibitorUsersCollection = client
+      .db("bdaeDb")
+      .collection("exhibitorUsers");
     const subscribesCollection = client.db("bdaeDb").collection("subscribes");
     // USER GET request handler
     app.get("/users", async (req, res) => {
@@ -58,11 +62,11 @@ async function run() {
     app.post("/visitorUsers", async (req, res) => {
       const visitorUser = req.body;
       const result = await visitorUsersCollection.insertOne(visitorUser);
-    
+
       try {
         await nodeMailer.sendWelcomeEmail(
           visitorUser.visitorEmail,
-          visitorUser.visitorTitle,
+          visitorUser.visitorFirstName,
           visitorUser.visitorLastName
         );
         res.send(result);
@@ -72,17 +76,27 @@ async function run() {
       }
     });
 
-    // Visitor Users GET request handler
+    // Exhibitor Users GET request handler
     app.get("/exhibitorUsers", async (req, res) => {
       const result = await exhibitorUsersCollection.find().toArray();
       res.send(result);
     });
 
-    // Visitor Users POST request handler
+    // Exhibitor Users POST request handler
     app.post("/exhibitorUsers", async (req, res) => {
-      const visitorUser = req.body;
-      const result = await exhibitorUsersCollection.insertOne(visitorUser);
-      res.send(result);
+      const exhibitorUser = req.body;
+      const result = await exhibitorUsersCollection.insertOne(exhibitorUser);
+      try {
+        await nodeMailer.sendWelcomeEmail(
+          exhibitorUser.exhibitorEmail,
+          exhibitorUser.exhibitorFirstName,
+          exhibitorUser.exhibitorLastName
+        );
+        res.send(result);
+      } catch (error) {
+        console.error("Error sending email:", error);
+        res.status(500).send("Error sending email");
+      }
     });
 
     // Subscribes GET request handler
@@ -90,13 +104,13 @@ async function run() {
       const result = await subscribesCollection.find().toArray();
       res.send(result);
     });
-    
+
     // Subscribes POST request handler
     app.post("/subscribes", async (req, res) => {
-        const newsletter = req.body;
-        const result = await subscribesCollection.insertOne(newsletter);
-        res.send(result);
-      });
+      const newsletter = req.body;
+      const result = await subscribesCollection.insertOne(newsletter);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
